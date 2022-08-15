@@ -167,9 +167,13 @@ function deleteComment(e) {
   const commentIndexToDelete = findClickedUserComment(e, existingCommentsArray);
   deleteModalToggle();
   const confirmDelete = document.getElementById("confirm-delete");
+  const cancelDelete = document.getElementById("cancel-delete");
   confirmDelete.addEventListener("click", () => {
     existingCommentsArray.splice(commentIndexToDelete);
     storeCommentsToLocalStorage(existingCommentsArray);
+  });
+  cancelDelete.addEventListener("click", () => {
+    location.reload();
   });
 }
 
@@ -364,6 +368,7 @@ function createDeleteModal() {
     "Are you sure you want to delete this comment?  This will remove the comment and can't be undone";
   const deleteModalButtons = createContainer("div", ["delete-modal-buttons"]);
   const cancelDeleteButton = document.createElement("button");
+  cancelDeleteButton.setAttribute("id", "cancel-delete");
   cancelDeleteButton.classList.add(
     "cancel-delete-button",
     "modal-button",
