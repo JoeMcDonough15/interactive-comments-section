@@ -1,0 +1,370 @@
+:root {
+  /* primary */
+  --moderate-blue: hsl(238, 40%, 52%);
+  --soft-red: hsl(358, 79%, 66%);
+  --light-grayish-blue: hsl(239, 57%, 85%);
+  --pale-red: hsl(357, 100%, 86%);
+  /* neutral */
+  --dark-blue: hsl(212, 24%, 26%);
+  --grayish-blue: hsl(211, 10%, 45%);
+  --light-gray: hsl(223, 19%, 93%);
+  --very-light-gray: hsl(228, 33%, 97%);
+  --white: hsl(0, 0%, 100%);
+  --dark-blur: #7a7a7c;
+  --light-blur: #7f7f7f;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--very-light-gray);
+  color: var(--grayish-blue);
+  font-family: "Rubik", sans-serif;
+  font-size: 1rem;
+}
+
+.main-container {
+  margin: auto;
+  max-width: 376px;
+  padding: 30px 16px;
+}
+
+.comment-container,
+.replies-container {
+  background-color: var(--white);
+  border-radius: 10px;
+  margin-bottom: 16px;
+  padding: 15px;
+}
+
+.comment-body {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.comment-top-row-left-wrapper {
+  align-items: center;
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.user-avatar {
+  height: 32px;
+  width: 32px;
+}
+
+.user-header,
+.delete-modal-header {
+  color: var(--dark-blue);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.current-user-logo {
+  background-color: var(--moderate-blue);
+  border-radius: 2px;
+  color: var(--white);
+  font-size: 12px;
+  padding: 6px;
+}
+
+.time-stamp {
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.comment-text-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.comment-text {
+  line-height: 1.4;
+  /* width: 100%; */
+}
+
+.reply-to-handle {
+  color: var(--moderate-blue);
+  font-weight: 500;
+}
+
+.comment-bottom-row {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 19px;
+}
+
+.upvote-row,
+.reply-row {
+  align-items: center;
+  display: flex;
+}
+
+.upvote-container {
+  background-color: var(--very-light-gray);
+  border-radius: 10px;
+  gap: 14px;
+  padding: 15px;
+}
+
+.reply-row {
+  gap: 8px;
+}
+
+.plus-icon {
+  height: 12px;
+  width: 12px;
+}
+
+.score-text,
+.reply-text,
+.edit-text,
+.delete-text {
+  color: var(--moderate-blue);
+  font-weight: 500;
+}
+
+.minus-icon {
+  height: 4px;
+  width: 12px;
+}
+
+.edit-or-delete-row,
+.delete-row,
+.edit-row {
+  display: flex;
+}
+
+.edit-or-delete-row {
+  gap: 16px;
+}
+
+.delete-row,
+.edit-row {
+  gap: 9px;
+}
+
+.delete-icon,
+.edit-icon {
+  height: 16px;
+  width: 14px;
+}
+
+.delete-text {
+  color: var(--soft-red);
+}
+
+.replies-container {
+  background-color: var(--very-light-gray);
+  border-left: 2px solid var(--light-gray);
+  border-radius: 0;
+  padding: 0 0 0 15px;
+}
+
+.submit-comment-bottom-row {
+  display: flex;
+}
+
+.submit-comment-field {
+  border: 1px solid var(--light-gray);
+  border-radius: 8px;
+  color: inherit;
+  font-family: inherit;
+  font-size: 16px;
+  padding: 16px 24px;
+  resize: none;
+  width: 100%;
+}
+
+.submit-comment-bottom-row {
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 18px;
+}
+
+.comment-submit-button {
+  background-color: var(--moderate-blue);
+  border: none;
+  border-radius: 8px;
+  color: var(--white);
+  font-weight: 700;
+  padding: 16px 30px;
+  text-transform: uppercase;
+}
+
+.update-comment-submit-button {
+  align-self: flex-end;
+  margin-top: 16px;
+}
+
+.delete-modal {
+  background-color: var(--white);
+  border-radius: 8px;
+  bottom: 40%;
+  left: 4%;
+  max-width: 344px;
+  padding: 28px;
+  position: fixed;
+}
+
+.delete-modal-header {
+  font-size: 24px;
+  margin-bottom: 28px;
+}
+
+.delete-modal-text {
+  line-height: 1.4;
+}
+
+.delete-modal-buttons {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 23px;
+}
+
+.modal-button {
+  border: none;
+  border-radius: 8px;
+  color: var(--white);
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 500;
+  padding: 16px 22px;
+  text-transform: uppercase;
+  width: max-content;
+}
+
+.cancel-delete-button {
+  background-color: var(--grayish-blue);
+}
+
+.confirm-delete-button {
+  background-color: var(--soft-red);
+}
+
+.hide,
+.desktop-user-buttons,
+.upvote-col,
+.desktop-comment-form-avatar,
+.desktop-comment-submit-button {
+  display: none;
+}
+
+.dark-blur {
+  background-color: var(--dark-blur);
+}
+
+.light-blur {
+  background-color: var(--light-blur);
+  border-color: var(--light-blur);
+}
+
+@media (min-width: 900px) {
+  .main-container {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-width: 732px;
+  }
+
+  .desktop-user-buttons {
+    display: flex;
+    flex-wrap: none;
+  }
+
+  .plus-icon,
+  .minus-icon,
+  .reply-row,
+  .delete-row,
+  .edit-row,
+  .submit-comment-field,
+  .comment-submit-button,
+  .modal-button {
+    cursor: pointer;
+  }
+
+  .reply-row:hover,
+  .delete-row:hover,
+  .edit-row:hover,
+  .comment-submit-button:hover,
+  .modal-button:hover {
+    opacity: 0.5;
+  }
+
+  .comment-bottom-row,
+  .mobile-user-buttons {
+    display: none;
+  }
+
+  .upvote-col {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    height: 100px;
+    justify-content: space-between;
+    margin-right: 16px;
+    padding-top: 10px;
+  }
+
+  .replies-container {
+    margin-left: 36px;
+    max-width: 696px;
+    padding-left: 36px;
+  }
+
+  .comment-container {
+    display: flex;
+    padding: 24px;
+  }
+
+  .comment-top-row {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .desktop-comment-form-avatar,
+  .desktop-comment-submit-button {
+    display: block;
+  }
+
+  .submit-comment-container {
+    width: 100%;
+  }
+
+  .submit-comment-top-row {
+    align-items: flex-start;
+    display: flex;
+    gap: 16px;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .submit-comment-bottom-row {
+    display: none;
+  }
+
+  .delete-modal {
+    background-color: var(--white);
+    border-radius: 8px;
+    bottom: 40%;
+    left: 40%;
+    max-width: 400px;
+    padding: 37px 32px;
+    position: fixed;
+  }
+
+  .modal-button {
+    font-size: 16px;
+    padding: 16px 32px;
+  }
+}
