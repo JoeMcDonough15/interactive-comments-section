@@ -41,6 +41,11 @@ body {
   padding: 15px;
 }
 
+.comment-container,
+.thread-container {
+  width: 100%;
+}
+
 .comment-body {
   display: flex;
   flex-direction: column;

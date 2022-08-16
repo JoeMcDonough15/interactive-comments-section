@@ -9,6 +9,7 @@ const data = {
   comments: [
     {
       id: 1,
+      parentId: null,
       content:
         "Impressive! Though it seems the drag feature could be improved. But overall it looks incredible. You've nailed the design and the responsiveness at various breakpoints works really well.",
       createdAt: establishOldDate(2022, 6, 10),
@@ -24,6 +25,7 @@ const data = {
     },
     {
       id: 2,
+      parentId: null,
       content:
         "Woah, your project looks awesome! How long have you been coding for? I'm still new, but think I want to dive into React as well soon. Perhaps you can give me an insight on where I can learn React? Thanks!",
       createdAt: establishOldDate(2022, 6, 28),
@@ -37,7 +39,8 @@ const data = {
       },
       replies: [
         {
-          id: 2.1,
+          id: 3,
+          parentId: 2,
           content:
             "If you're still new, I'd recommend focusing on the fundamentals of HTML, CSS, and JS before considering React. It's very tempting to jump ahead but lay a solid foundation first.",
           createdAt: establishOldDate(2022, 7, 3),
@@ -53,7 +56,8 @@ const data = {
           replies: [],
         },
         // {
-        //   id: 2.2,
+        //   id: 4,
+        //   parentId: 2,
         //   content:
         //     "I couldn't agree more with this. Everything moves so fast and it always seems like everyone knows the newest library/framework. But the fundamentals are what stay constant.",
         //   createdAt: establishOldDate(2022, 7, 8),
@@ -125,22 +129,34 @@ submitCommentButtons.forEach((submitCommentButton) => {
 function createNewComment(e) {
   e.preventDefault();
   const newCommentObject = constructCommentObject();
-  const locallyStoredCommentsArray = retrieveCommentsFromLocalStorage();
-  locallyStoredCommentsArray.push(newCommentObject);
-  storeCommentsToLocalStorage(locallyStoredCommentsArray);
+  console.log(newCommentObject.id);
+  const existingCommentsArray = retrieveCommentsFromLocalStorage();
+  existingCommentsArray.push(newCommentObject);
+  storeCommentsToLocalStorage(existingCommentsArray);
 }
 
 function replyToComment(e) {
   const commentNumber = findCommentNumber(e);
   renderReplyForm(commentNumber);
-  const replyButton = document.getElementById(
+  const desktopReplyButton = document.getElementById(
     `replying-to-comment_${commentNumber}`
   );
-  replyButton.addEventListener("click", (event) => {
-    // event.preventDefault();
-    console.log("clicked");
-    // const newCommentObject = constructCommentObject(commentNumber);
-    // console.log(newCommentObject);
+  const mobileReplyButton = document.getElementById(
+    `replying-to-comment-mobile_${commentNumber}`
+  );
+  desktopReplyButton.addEventListener("click", (event) => {
+    event.preventDefault();
+    const newCommentObject = constructCommentObject(commentNumber);
+    const existingCommentsArray = retrieveCommentsFromLocalStorage();
+    existingCommentsArray.push(newCommentObject);
+    storeCommentsToLocalStorage(existingCommentsArray);
+  });
+  mobileReplyButton.addEventListener("click", (event) => {
+    event.preventDefault();
+    const newCommentObject = constructCommentObject(commentNumber);
+    const existingCommentsArray = retrieveCommentsFromLocalStorage();
+    existingCommentsArray.push(newCommentObject);
+    storeCommentsToLocalStorage(existingCommentsArray);
   });
 }
 
@@ -165,11 +181,12 @@ function updateComment(e) {
 function deleteComment(e) {
   const existingCommentsArray = retrieveCommentsFromLocalStorage();
   const commentIndexToDelete = findClickedUserComment(e, existingCommentsArray);
+  console.log(commentIndexToDelete);
   deleteModalToggle();
   const confirmDelete = document.getElementById("confirm-delete");
   const cancelDelete = document.getElementById("cancel-delete");
   confirmDelete.addEventListener("click", () => {
-    existingCommentsArray.splice(commentIndexToDelete);
+    existingCommentsArray.splice(commentIndexToDelete, 1);
     storeCommentsToLocalStorage(existingCommentsArray);
   });
   cancelDelete.addEventListener("click", () => {
@@ -179,14 +196,11 @@ function deleteComment(e) {
 
 //// functions that build HTML ////
 
-function constructCommentObject(replyingToCommentNumber) {
-  if (arguments.length === 0) {
-    replyingToCommentNumber = false;
-  }
+function constructCommentObject(replyingToCommentNumber = false) {
   const commentDate = new Date();
   const humanReadableDate = commentDate.toDateString();
   const newCommentObject = {
-    id: data.comments.length + 1,
+    id: parseInt(create_UUID(), 16),
     content: document.getElementById("comment-text-field").value,
     createdAt: humanReadableDate,
     score: 0,
@@ -200,7 +214,9 @@ function constructCommentObject(replyingToCommentNumber) {
     replies: [],
   };
   if (replyingToCommentNumber) {
-    newCommentObject.replyingToCommentId = replyingToCommentNumber;
+    newCommentObject.parentId = replyingToCommentNumber;
+  } else {
+    newCommentObject.parentId = null;
   }
   return newCommentObject;
 }
@@ -308,11 +324,8 @@ function renderComment(comment) {
 function renderSubmitCommentForm(
   currentUser,
   submitButtonText,
-  replyingToComment
+  replyingToComment = false
 ) {
-  if (arguments.length === 2) {
-    replyingToComment = false;
-  }
   const commentForm = createContainer("form", [
     "submit-comment-container",
     "comment-container",
@@ -341,10 +354,12 @@ function renderSubmitCommentForm(
       "id",
       `replying-to-comment_${replyingToComment}`
     );
+    desktopSubmitButton.setAttribute("type", "button");
     mobileSubmitButton.setAttribute(
       "id",
-      `replying-to-comment_${replyingToComment}`
+      `replying-to-comment-mobile_${replyingToComment}`
     );
+    mobileSubmitButton.setAttribute("type", "button");
   }
   submitCommentFormTopRow.append(
     desktopUserAvatar,
@@ -557,20 +572,45 @@ function retrieveCommentsFromLocalStorage() {
 
 function aggregateStoredComments(locallyStoredCommentsArray) {
   locallyStoredCommentsArray.forEach((comment) => {
-    data.comments.push(comment);
+    if (comment.parentId) {
+      handleRenderingReplies(comment);
+    } else {
+      data.comments.push(comment);
+    }
   });
+}
+
+function handleRenderingReplies(comment) {
+  const parentComment = data.comments.find((parent) => {
+    return parent.id === Number(comment.parentId);
+  });
+  parentComment.replies.push(comment);
 }
 
 ////// helper functions //////
 
-function findCommentNumber(element) {
+function findCommentNumber(event) {
+  console.log(event);
   let commentNumber;
-  const idNum = element.target.getAttribute("id");
+  const idNum = event.target.getAttribute("id");
   for (const char of idNum) {
     const commentIndex = idNum.indexOf("_");
     commentNumber = idNum.slice(commentIndex + 1);
   }
   return commentNumber;
+}
+
+function create_UUID() {
+  let dt = new Date().getTime();
+  let uuid = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
+    /[xy]/g,
+    function (c) {
+      const r = (dt + Math.random() * 16) % 16 | 0;
+      dt = Math.floor(dt / 16);
+      return (c == "x" ? r : (r & 0x3) | 0x8).toString(16);
+    }
+  );
+  return uuid;
 }
 
 function establishOldDate(year, month, day) {
@@ -579,10 +619,10 @@ function establishOldDate(year, month, day) {
   return readableDate;
 }
 
-function findClickedUserComment(e, commentsArray) {
-  const commentNumber = findCommentNumber(e);
+function findClickedUserComment(targetedComment, commentsArray) {
+  const commentNumber = findCommentNumber(targetedComment);
   const correctCommentIndex = commentsArray.findIndex((comment) => {
-    return comment.id === Number(commentNumber);
+    return comment.id.toString() === commentNumber;
   });
   return correctCommentIndex;
 }
