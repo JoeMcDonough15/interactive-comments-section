@@ -107,7 +107,7 @@ deleteRows.forEach((deleteRow) => {
 
 const replyRows = document.querySelectorAll(".reply-row");
 replyRows.forEach((replyRow) => {
-  replyRow.addEventListener("click", replyToComment);
+  replyRow.addEventListener("click", openReplyForm);
 });
 
 const editRows = document.querySelectorAll(".edit-text");
@@ -129,13 +129,12 @@ submitCommentButtons.forEach((submitCommentButton) => {
 function createNewComment(e) {
   e.preventDefault();
   const newCommentObject = constructCommentObject();
-  console.log(newCommentObject.id);
   const existingCommentsArray = retrieveCommentsFromLocalStorage();
   existingCommentsArray.push(newCommentObject);
   storeCommentsToLocalStorage(existingCommentsArray);
 }
 
-function replyToComment(e) {
+function openReplyForm(e) {
   const commentNumber = findCommentNumber(e);
   renderReplyForm(commentNumber);
   const desktopReplyButton = document.getElementById(
@@ -144,20 +143,17 @@ function replyToComment(e) {
   const mobileReplyButton = document.getElementById(
     `replying-to-comment-mobile_${commentNumber}`
   );
-  desktopReplyButton.addEventListener("click", (event) => {
-    event.preventDefault();
-    const newCommentObject = constructCommentObject(commentNumber);
-    const existingCommentsArray = retrieveCommentsFromLocalStorage();
-    existingCommentsArray.push(newCommentObject);
-    storeCommentsToLocalStorage(existingCommentsArray);
-  });
-  mobileReplyButton.addEventListener("click", (event) => {
-    event.preventDefault();
-    const newCommentObject = constructCommentObject(commentNumber);
-    const existingCommentsArray = retrieveCommentsFromLocalStorage();
-    existingCommentsArray.push(newCommentObject);
-    storeCommentsToLocalStorage(existingCommentsArray);
-  });
+  desktopReplyButton.addEventListener("click", replyToComment);
+  mobileReplyButton.addEventListener("click", replyToComment);
+}
+
+function replyToComment(e) {
+  e.preventDefault();
+  const commentNumber = findCommentNumber(e);
+  const newCommentObject = constructCommentObject(commentNumber);
+  const existingCommentsArray = retrieveCommentsFromLocalStorage();
+  existingCommentsArray.push(newCommentObject);
+  storeCommentsToLocalStorage(existingCommentsArray);
 }
 
 function updateComment(e) {
@@ -176,12 +172,12 @@ function updateComment(e) {
       updatedCommentTextField.value;
     storeCommentsToLocalStorage(existingCommentsArray);
   });
+  e.target.removeEventListener("click", updateComment);
 }
 
 function deleteComment(e) {
   const existingCommentsArray = retrieveCommentsFromLocalStorage();
   const commentIndexToDelete = findClickedUserComment(e, existingCommentsArray);
-  console.log(commentIndexToDelete);
   deleteModalToggle();
   const confirmDelete = document.getElementById("confirm-delete");
   const cancelDelete = document.getElementById("cancel-delete");
@@ -196,21 +192,19 @@ function deleteComment(e) {
 
 //// functions that build HTML ////
 
-function constructCommentObject(replyingToCommentNumber = false) {
+function createHumanReadableDate() {
   const commentDate = new Date();
   const humanReadableDate = commentDate.toDateString();
+  return humanReadableDate;
+}
+
+function constructCommentObject(replyingToCommentNumber = false) {
   const newCommentObject = {
-    id: parseInt(create_UUID(), 16),
+    id: parseInt(create_uuid(), 16),
     content: document.getElementById("comment-text-field").value,
-    createdAt: humanReadableDate,
+    createdAt: createHumanReadableDate(),
     score: 0,
-    user: {
-      image: {
-        png: data.currentUser.image.png,
-        webp: data.currentUser.image.webp,
-      },
-      username: data.currentUser.username,
-    },
+    user: data.currentUser,
     replies: [],
   };
   if (replyingToCommentNumber) {
@@ -573,24 +567,17 @@ function retrieveCommentsFromLocalStorage() {
 function aggregateStoredComments(locallyStoredCommentsArray) {
   locallyStoredCommentsArray.forEach((comment) => {
     if (comment.parentId) {
-      handleRenderingReplies(comment);
+      const parentComment = matchReplytoParentComment(comment);
+      parentComment.replies.push(comment);
     } else {
       data.comments.push(comment);
     }
   });
 }
 
-function handleRenderingReplies(comment) {
-  const parentComment = data.comments.find((parent) => {
-    return parent.id === Number(comment.parentId);
-  });
-  parentComment.replies.push(comment);
-}
-
 ////// helper functions //////
 
 function findCommentNumber(event) {
-  console.log(event);
   let commentNumber;
   const idNum = event.target.getAttribute("id");
   for (const char of idNum) {
@@ -600,16 +587,20 @@ function findCommentNumber(event) {
   return commentNumber;
 }
 
-function create_UUID() {
+function create_uuid() {
   let dt = new Date().getTime();
+  console.log(dt, typeof dt);
   let uuid = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
     /[xy]/g,
-    function (c) {
-      const r = (dt + Math.random() * 16) % 16 | 0;
+    function (char) {
+      const replacementChar = (dt + Math.random() * 16) % 16 | 0;
       dt = Math.floor(dt / 16);
-      return (c == "x" ? r : (r & 0x3) | 0x8).toString(16);
+      return (
+        char == "x" ? replacementChar : (replacementChar & 0x3) | 0x8
+      ).toString(16);
     }
   );
+  console.log(uuid);
   return uuid;
 }
 
@@ -648,4 +639,32 @@ function fadeBackgroundInOut() {
   submitCommentFields.forEach((field) => {
     field.classList.toggle("light-blur");
   });
+}
+
+function matchReplytoParentComment(comment) {
+  const topLevelComment = checkReplyAgainstCommentArray(
+    data.comments,
+    comment.parentId
+  );
+  if (typeof topLevelComment !== "undefined") {
+    return topLevelComment;
+  }
+  let nestedReplyComment;
+  data.comments.forEach((commentInData) => {
+    const parentComment = checkReplyAgainstCommentArray(
+      commentInData.replies,
+      comment.parentId
+    );
+    if (typeof parentComment !== "undefined") {
+      nestedReplyComment = parentComment;
+    }
+  });
+  return nestedReplyComment;
+}
+
+function checkReplyAgainstCommentArray(commentsArray, parentIdToMatch) {
+  const parentComment = commentsArray.find((comment) => {
+    return comment.id === Number(parentIdToMatch);
+  });
+  return parentComment;
 }
