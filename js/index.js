@@ -200,7 +200,7 @@ function createHumanReadableDate() {
 
 function constructCommentObject(replyingToCommentNumber = false) {
   const newCommentObject = {
-    id: parseInt(create_uuid(), 16),
+    id: createUniqueId(),
     content: document.getElementById("comment-text-field").value,
     createdAt: createHumanReadableDate(),
     score: 0,
@@ -546,7 +546,7 @@ function setReplyButton(comment) {
   return replyButtonContainer;
 }
 
-//// functions to handle data from localStorage  ///////
+//// functions to handle data to/from localStorage  ///////
 
 function storeCommentsToLocalStorage(commentsArray) {
   const key = `commentsToDisplay`;
@@ -587,21 +587,30 @@ function findCommentNumber(event) {
   return commentNumber;
 }
 
-function create_uuid() {
-  let dt = new Date().getTime();
-  console.log(dt, typeof dt);
-  let uuid = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
-    /[xy]/g,
-    function (char) {
-      const replacementChar = (dt + Math.random() * 16) % 16 | 0;
-      dt = Math.floor(dt / 16);
-      return (
-        char == "x" ? replacementChar : (replacementChar & 0x3) | 0x8
-      ).toString(16);
+function createUniqueId() {
+  const existingIds = findExistingCommentIds(data.comments);
+  let highestNum = 0;
+  for (const num of existingIds) {
+    if (num > highestNum) {
+      highestNum = num;
     }
-  );
-  console.log(uuid);
-  return uuid;
+  }
+  return highestNum + 1;
+}
+
+function findExistingCommentIds(commentsArray) {
+  if (commentsArray.length === 0) {
+    return new Set();
+  }
+  const existingIds = new Set();
+  commentsArray.forEach((comment) => {
+    const replyIds = findExistingCommentIds(comment.replies);
+    for (const _id of replyIds) {
+      existingIds.add(_id);
+    }
+    existingIds.add(comment.id);
+  });
+  return existingIds;
 }
 
 function establishOldDate(year, month, day) {
