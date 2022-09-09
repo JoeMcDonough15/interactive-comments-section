@@ -40,7 +40,7 @@ const data = {
       replies: [
         {
           id: 3,
-          parentId: 2,
+          parentId: "2",
           content:
             "If you're still new, I'd recommend focusing on the fundamentals of HTML, CSS, and JS before considering React. It's very tempting to jump ahead but lay a solid foundation first.",
           createdAt: establishOldDate(2022, 7, 3),
@@ -256,7 +256,7 @@ function renderUpdateCommentForm(commentNumber) {
 }
 
 function renderComment(comment) {
-  const commentContainer = createContainer("section", ["comment-container"]);
+  const commentContainer = createContainer(["comment-container"]);
   commentContainer.setAttribute("id", `comment_${comment.id}`);
 
   //   // set upvote containers
@@ -264,8 +264,8 @@ function renderComment(comment) {
   const mobileUpvoteContainer = createUpvoteContainer(comment, "upvote-row");
 
   //   // comment top row
-  const commentTopRow = createContainer("div", ["comment-top-row"]);
-  const commentTopRowLeftWrapper = createContainer("div", [
+  const commentTopRow = createContainer(["comment-top-row"]);
+  const commentTopRowLeftWrapper = createContainer([
     "comment-top-row-left-wrapper",
   ]);
   const userAvatar = setUserAvatar(comment.user);
@@ -286,24 +286,22 @@ function renderComment(comment) {
   commentTopRow.append(commentTopRowLeftWrapper, desktopUserButtons);
 
   //   // main comment body
-  const commentTextContainer = createContainer("div", [
-    "comment-text-container",
-  ]);
+  const commentTextContainer = createContainer(["comment-text-container"]);
   const commentText = setCommentText(comment);
   commentTextContainer.appendChild(commentText);
 
   //   // comment bottom row
-  const commentBottomRow = createContainer("div", ["comment-bottom-row"]);
+  const commentBottomRow = createContainer(["comment-bottom-row"]);
   const mobileUserButtons = setUserButtons(comment, "mobile");
   commentBottomRow.append(mobileUpvoteContainer, mobileUserButtons);
 
   // putting the comment together and handling replies with recursion!
-  const commentBody = createContainer("div", ["comment-body"]);
+  const commentBody = createContainer(["comment-body"]);
   commentBody.append(commentTopRow, commentTextContainer, commentBottomRow);
   commentContainer.append(desktopUpvoteContainer, commentBody);
-  const threadContainer = createContainer("article", ["thread-container"]);
+  const threadContainer = createContainer(["thread-container"]);
   if (comment.replies.length > 0) {
-    const repliesContainer = createContainer("section", ["replies-container"]);
+    const repliesContainer = createContainer(["replies-container"]);
     comment.replies.forEach((reply) => {
       const replyComment = renderComment(reply);
       repliesContainer.appendChild(replyComment);
@@ -320,13 +318,9 @@ function renderSubmitCommentForm(
   submitButtonText,
   replyingToComment = false
 ) {
-  const commentForm = createContainer("form", [
-    "submit-comment-container",
-    "comment-container",
-  ]);
-  const submitCommentFormTopRow = createContainer("div", [
-    "submit-comment-top-row",
-  ]);
+  const commentForm = document.createElement("form");
+  commentForm.classList.add("submit-comment-container", "comment-container");
+  const submitCommentFormTopRow = createContainer(["submit-comment-top-row"]);
   const desktopUserAvatar = setUserAvatar(currentUser);
   desktopUserAvatar.classList.add("desktop-comment-form-avatar");
   const commentTextField = createCommentTextField();
@@ -337,7 +331,7 @@ function renderSubmitCommentForm(
     "submit-comment-button"
   );
 
-  const submitCommentFormBottomRow = createContainer("div", [
+  const submitCommentFormBottomRow = createContainer([
     "submit-comment-bottom-row",
   ]);
   const mobileUserAvatar = setUserAvatar(currentUser);
@@ -368,14 +362,14 @@ function renderSubmitCommentForm(
 function createDeleteModal() {
   const deleteModal = document.createElement("section");
   deleteModal.classList.add("delete-modal", "hide");
-  const deleteModalHeader = document.createElement("h1");
+  const deleteModalHeader = document.createElement("h2");
   deleteModalHeader.innerText = "Delete comment";
   deleteModalHeader.classList.add("delete-modal-header");
   const deleteModalText = document.createElement("p");
   deleteModalText.classList.add("delete-modal-text");
   deleteModalText.innerText =
     "Are you sure you want to delete this comment?  This will remove the comment and can't be undone";
-  const deleteModalButtons = createContainer("div", ["delete-modal-buttons"]);
+  const deleteModalButtons = createContainer(["delete-modal-buttons"]);
   const cancelDeleteButton = document.createElement("button");
   cancelDeleteButton.setAttribute("id", "cancel-delete");
   cancelDeleteButton.classList.add(
@@ -414,7 +408,7 @@ function createSubmitButton(submitButtonText) {
 }
 
 function createUpvoteContainer(comment, upvoteRowDirection) {
-  const upvoteContainer = createContainer("div", [
+  const upvoteContainer = createContainer([
     upvoteRowDirection,
     "upvote-container",
   ]);
@@ -422,14 +416,20 @@ function createUpvoteContainer(comment, upvoteRowDirection) {
   plusImg.setAttribute("src", "images/icon-plus.svg");
   plusImg.setAttribute("alt", "plus icon");
   plusImg.classList.add("plus-icon");
-  plusImg.setAttribute("id", `plus-icon-for-comment_${comment.id}`);
+  plusImg.setAttribute(
+    "id",
+    `plus-icon-${upvoteRowDirection}-for-comment_${comment.id}`
+  );
   const score = document.createElement("p");
   score.innerText = comment.score;
   score.classList.add("score-text");
   const minusImg = document.createElement("img");
   minusImg.setAttribute("src", "images/icon-minus.svg");
   minusImg.setAttribute("alt", "minus icon");
-  minusImg.setAttribute("id", `minus-icon-for-comment_${comment.id}`);
+  minusImg.setAttribute(
+    "id",
+    `minus-icon-${upvoteRowDirection}-for-comment_${comment.id}`
+  );
   minusImg.classList.add("minus-icon");
   upvoteContainer.append(plusImg, score, minusImg);
   return upvoteContainer;
@@ -445,7 +445,7 @@ function setUserAvatar(user) {
 }
 
 function setUserHeader(comment) {
-  const userHeader = document.createElement("h1");
+  const userHeader = document.createElement("h2");
   userHeader.innerText = comment.user.username;
   userHeader.classList.add("user-header");
   userHeader.setAttribute("id", `user-header_${comment.id}`);
@@ -460,7 +460,7 @@ function setCurrentUserLogo(comment) {
 }
 
 function setTimeStamp(comment) {
-  const timeStamp = document.createElement("h1");
+  const timeStamp = document.createElement("h2");
   const commentDate = comment.createdAt;
   timeStamp.innerText = commentDate;
   timeStamp.classList.add("time-stamp");
@@ -484,66 +484,64 @@ function setCommentText(comment) {
 }
 
 function setUserButtons(comment, device) {
-  const userButtonsContainer = createContainer("div", [
-    `${device}-user-buttons`,
-  ]);
+  const userButtonsContainer = createContainer([`${device}-user-buttons`]);
   if (comment.user.username === data.currentUser.username) {
-    const editOrDeleteRow = createContainer("div", ["edit-or-delete-row"]);
-    const deleteRow = createContainer("div", ["delete-row", "delete-button"]);
-    deleteRow.setAttribute("id", `delete-row_${comment.id}`);
+    const editOrDeleteRow = createContainer(["edit-or-delete-row"]);
+    const deleteRow = createContainer(["delete-row", "delete-button"]);
+    deleteRow.setAttribute("id", `${device}-delete-row_${comment.id}`);
     const deleteIcon = document.createElement("img");
     deleteIcon.setAttribute("src", "images/icon-delete.svg");
     deleteIcon.setAttribute("alt", "delete icon");
-    deleteIcon.setAttribute("id", `delete-icon_${comment.id}`);
+    deleteIcon.setAttribute("id", `${device}-delete-icon_${comment.id}`);
     deleteIcon.classList.add("delete-icon");
     const deleteText = document.createElement("p");
     deleteText.classList.add("delete-text");
-    deleteText.setAttribute("id", `delete-text_${comment.id}`);
+    deleteText.setAttribute("id", `${device}-delete-text_${comment.id}`);
     deleteText.innerText = "Delete";
     deleteRow.append(deleteIcon, deleteText);
-    const editRow = createContainer("div", ["edit-row"]);
-    editRow.setAttribute("id", `edit-row_${comment.id}`);
+    const editRow = createContainer(["edit-row"]);
+    editRow.setAttribute("id", `${device}-edit-row_${comment.id}`);
     const editIcon = document.createElement("img");
     editIcon.setAttribute("src", "images/icon-edit.svg");
     editIcon.setAttribute("alt", "edit icon");
-    editIcon.setAttribute("id", `edit-icon_${comment.id}`);
+    editIcon.setAttribute("id", `${device}-edit-icon_${comment.id}`);
     editIcon.classList.add("edit-icon");
     const editText = document.createElement("p");
     editText.classList.add("edit-text", `edit-button_${comment.id}`);
-    editText.setAttribute("id", `edit-text_${comment.id}`);
+    editText.setAttribute("id", `${device}-edit-text_${comment.id}`);
     editText.innerText = "Edit";
     editRow.append(editIcon, editText);
     editOrDeleteRow.append(deleteRow, editRow);
     userButtonsContainer.append(editOrDeleteRow);
   } else {
-    const replyButtonRow = setReplyButton(comment);
-    userButtonsContainer.append(replyButtonRow);
+    const deviceReplyButtonRow = setReplyRow(comment, device);
+    userButtonsContainer.append(deviceReplyButtonRow);
   }
   return userButtonsContainer;
 }
 
-function createContainer(typeOfElement, addTheseClasses) {
-  const container = document.createElement(typeOfElement);
+function createContainer(addTheseClasses) {
+  const container = document.createElement("div");
   addTheseClasses.forEach((thisClass) => {
     container.classList.add(thisClass);
   });
   return container;
 }
 
-function setReplyButton(comment) {
-  const replyButtonContainer = createContainer("div", ["reply-row"]);
-  replyButtonContainer.setAttribute("id", `reply-row_${comment.id}`);
+function setReplyRow(comment, device) {
+  const replyRowContainer = createContainer(["reply-row"]);
+  replyRowContainer.setAttribute("id", `${device}-reply-row_${comment.id}`);
   const replyImg = document.createElement("img");
   replyImg.setAttribute("src", "images/icon-reply.svg");
   replyImg.setAttribute("alt", "reply icon");
   replyImg.classList.add("reply-img");
-  replyImg.setAttribute("id", `reply-icon_${comment.id}`);
+  replyImg.setAttribute("id", `${device}-reply-icon_${comment.id}`);
   const replyText = document.createElement("p");
   replyText.innerText = "Reply";
   replyText.classList.add("reply-text");
-  replyText.setAttribute("id", `reply-text_${comment.id}`);
-  replyButtonContainer.append(replyImg, replyText);
-  return replyButtonContainer;
+  replyText.setAttribute("id", `${device}-reply-text_${comment.id}`);
+  replyRowContainer.append(replyImg, replyText);
+  return replyRowContainer;
 }
 
 //// functions to handle data to/from localStorage  ///////
