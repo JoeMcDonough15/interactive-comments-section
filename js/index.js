@@ -269,8 +269,9 @@ function renderComment(comment) {
     "comment-top-row-left-wrapper",
   ]);
   const userAvatar = setUserAvatar(comment.user);
+  userAvatar.setAttribute("id", `user-avatar_${comment.id}`);
   const userHeader = setUserHeader(comment);
-  const currentUserLogo = setCurrentUserLogo(comment);
+  const currentUserLogo = setCurrentUserLogo();
   const timeStamp = setTimeStamp(comment);
   const desktopUserButtons = setUserButtons(comment, "desktop");
   if (data.currentUser.username === comment.user.username) {
@@ -322,6 +323,7 @@ function renderSubmitCommentForm(
   commentForm.classList.add("submit-comment-container", "comment-container");
   const submitCommentFormTopRow = createContainer(["submit-comment-top-row"]);
   const desktopUserAvatar = setUserAvatar(currentUser);
+  desktopUserAvatar.setAttribute("id", "desktop-current-user-avatar");
   desktopUserAvatar.classList.add("desktop-comment-form-avatar");
   const commentTextField = createCommentTextField();
   commentTextField.setAttribute("id", "comment-text-field");
@@ -335,6 +337,7 @@ function renderSubmitCommentForm(
     "submit-comment-bottom-row",
   ]);
   const mobileUserAvatar = setUserAvatar(currentUser);
+  mobileUserAvatar.setAttribute("id", "mobile-current-user-avatar");
   const mobileSubmitButton = createSubmitButton(submitButtonText);
   mobileSubmitButton.classList.add("submit-comment-button");
   if (replyingToComment) {
@@ -439,7 +442,6 @@ function setUserAvatar(user) {
   const userAvatar = document.createElement("img");
   userAvatar.setAttribute("src", user.image.png);
   userAvatar.setAttribute("alt", "user's avatar");
-  userAvatar.setAttribute("id", `user-avatar_${user.username}`);
   userAvatar.classList.add("user-avatar");
   return userAvatar;
 }
@@ -452,7 +454,7 @@ function setUserHeader(comment) {
   return userHeader;
 }
 
-function setCurrentUserLogo(comment) {
+function setCurrentUserLogo() {
   const currentUserLogo = document.createElement("p");
   currentUserLogo.innerText = "you";
   currentUserLogo.classList.add("current-user-logo");
